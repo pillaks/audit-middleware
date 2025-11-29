@@ -44,13 +44,13 @@ export const createAuditMiddleware = (userConfig: AuditMiddlewareConfig = {}) =>
       return next();
     }
 
-    const startTime = Date.now();
-
     if (config.metrics?.enabled && 
         config.metrics.endpoint && 
         req.path === config.metrics.endpoint) {
       return metricsHandler(req, res);
     }
+
+    const startTime = Date.now();
 
     if (config.security?.enabled) {
       applySecurityMiddlewares(req, res, config, () => {
@@ -82,26 +82,27 @@ const applySecurityMiddlewares = (
 
   let index = 0;
   
-  const nextMiddleware = () => {
-    if (index < securityMiddlewares.length) {
-      const middleware = securityMiddlewares[index];
-      if (middleware && typeof middleware === 'function') {
-        try {
-          middleware(req, res, nextMiddleware);
-        } catch (error) {
-          console.error('Error in security middleware:', error);
-          nextMiddleware();
-        }
-      } else {
-        nextMiddleware();
+  const executeNext = () => {
+    if (index >= securityMiddlewares.length) {
+      return callback();
+    }
+    
+    const middleware = securityMiddlewares[index];
+    index++;
+    
+    if (middleware && typeof middleware === 'function') {
+      try {
+        middleware(req, res, executeNext);
+      } catch (error) {
+        console.error('Error in security middleware:', error);
+        executeNext();
       }
-      index++;
     } else {
-      callback();
+      executeNext();
     }
   };
 
-  nextMiddleware();
+  executeNext();
 };
 
 const setupRequestMonitoring = (
