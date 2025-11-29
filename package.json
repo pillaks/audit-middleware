@@ -1,6 +1,6 @@
 {
   "name": "audit-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "All-in-one security and observability middleware for Express.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
   "keywords": [
     "express",
     "middleware",
-    "security", 
+    "security",
     "logging",
     "metrics",
     "observability",
